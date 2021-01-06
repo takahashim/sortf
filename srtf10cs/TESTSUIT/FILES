@@ -1,0 +1,25 @@
+file name		tested option / contents
+
+tf-space		fields by white spaces
+tf-delm		-tC	fields by 1-byted specified delimiters
+tf-mbyte		fields with multi-byted characters
+tf-mbdel		fields by multi-byted delimiters
+tf-hex			1-byted delimiter by hexadecimal notation
+tf-mbhex		multi-byted delimiter by hexadecimal notation
+tp-blank	-p	records by blank lines
+tp-delm		-pC	records by delimiters
+tp-field	-pC	-tD	records and fields
+tc-asis		-a	order as in input when otherwise equivalent
+tc-spign	-b	ignore leading white-spaces
+tc-dict		-d	dictionary (ignore non-alpha-numeric characters)
+tc-fold		-f	fold upper/lower cases 
+tc-print	-i	ingore !isprint(c) characters (eg. multi-byted)
+tc-num		-n	treat digits as real numbers
+tc-mbjp		-J	Japanese multi-byte characters sensitive
+tm-rev		-r	sort in reverse order
+tm-uniq		-u	select unique output
+tm-uunq		-uU	non-duplicated records only
+tm-dunq		-uD	duplicated records only
+tm-nunq		-uN	give count of duplication at left
+tm-sqwz		-s	squeeze : throw away blank records
+tm-sqwp		-s	-p : squeeze in paragraph mode

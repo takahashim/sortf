@@ -1,0 +1,156 @@
+# sortf v00-10 makefile for MS-DOS : use KI-make by k16(Ishino K16)
+# KI-make is distributed by NIKKEI-MIX toolbox/lib
+#
+
+## define BCC to use Borland c++ v4.0
+#BCC= 1
+#
+
+## switch to select signed/unsigned comparison
+# if memcmp() does signed comparison (eg. Sun OS 4.1.1 + JLE),
+# set FORCE_UC(force unsigned comparison) to 1
+#
+# UCOPT= 1
+# else, let it be 0 : (eg. MS-C v8.0(Visual c++), Borland c++, Ultrix)
+#
+UCOPT= 0
+#
+
+o = .obj
+x = .exe
+ 
+SOBJ = sortex${o} mbjp${o}
+JOBJ = colljp${o} 
+HEADER = mtconfig.h
+
+sortf${x}: sortf${o} $(SOBJ) $(OBJS) $(JOBJ) 
+	.del $(RESPONSE)
+	#ifdef BCC
+	$(LINK)  $(LINJOBJ) $<
+	#else	
+	.define NEEDTGT $@
+	.make $(RESPONSE)  $<
+	$(LINK) @$(RESPONSE) 
+	.del $(RESPONSE)
+	#endif	
+
+sortfi${x}: sortfi${o} $(SOBJ) $(OBJS) $(JOBJ) 
+	.del $(RESPONSE)
+	#ifdef BCC
+	$(LINK)  $(LINJOBJ) $<
+	#else	
+	.define NEEDTGT $@
+	.make $(RESPONSE)  $<
+	$(LINK) @$(RESPONSE) 
+	.del $(RESPONSE)
+	#endif	
+
+sortfnok${x}: sortfnok${o} $(SOBJ) $(OBJS)
+	#ifdef BCC
+	$(LINK)  $(LINJOBJ) $<
+	#else	
+	.define NEEDTGT $@
+	.make $(RESPONSE)  $<
+	$(LINK) @$(RESPONSE) 
+	.del $(RESPONSE)
+	#endif	
+
+sortfdbg${x}: sortf${o} sortexdbg${o} $(OBJS) $(JOBJ) mbjp${o}
+	#ifdef BCC
+	$(LINK)  $(LINJOBJ) $<
+	#else	
+	.define NEEDTGT $@
+	.make $(RESPONSE)  $<
+	$(LINK) @$(RESPONSE) 
+	.del $(RESPONSE)
+	#endif	
+
+sortf${o}: sortf.c $(HEADER)
+	$(CC) $(COMPOPT) -DFORCE_UC=$(UCOPT) $(OBJOPT) sortf.c
+ 
+sortfi${o}: sortf.c $(HEADER)
+	$(CC) $(COMPOPT) -DDO_DEBUG=1 -DFORCE_UC=$(UCOPT) $(OBJOPT) sortf.c
+ 
+sortfnok${o}: sortf.c $(HEADER)
+	$(CC) -DDO_MBCHR=0 $(COMPOPT) -DFORCE_UC=$(UCOPT) $(OBJOPT) sortf.c
+ 
+sortexdbg${o}: sortex.c $(HEADER)
+	$(CC) $(COMPOPT) -DDO_DEBUG=1 $(OBJOPT) $(GETLIB) sortex.c
+	
+sortex${o}: sortex.c $(HEADER)
+	$(CC) $(COMPOPT) $(OBJOPT) $(GETLIB) sortex.c
+ 
+colljp${o}: colljp.c $(HEADER) jptbl.h
+	$(CC) $(COMPOPT) -DFORCE_UC=$(UCOPT) $(OBJOPT) colljp.c
+
+ 
+mbjp${o}: mbjp.c $(HEADER) jptbl.h
+	$(CC) $(COMPOPT) -DFORCE_UC=$(UCOPT) $(OBJOPT) mbjp.c
+ 
+ 
+jptbl.h  : mkjptbl.pl 
+	!jperl mkjptbl.pl -J$(MUST_ESCAPE_BACKSLASH)
+	
+colltest : colljp${x}
+
+colljp${x} : colljpt${o} mbjp${o}
+	#ifdef BCC
+	$(LINK)  $(LINJOBJ) $<
+	#else	
+	.define NEEDTGT $@
+	.make $(RESPONSE)  $<
+	$(LINK) @$(RESPONSE) 
+	.del $(RESPONSE)
+	#endif	
+
+	
+colljp${o}: colljp.c $(HEADER) jptbl.h
+	$(CC) $(COMPOPT) -DDO_TEST=1 -DFORCE_UC=$(UCOPT) $(OBJOPT) colljp.c
+ 
+RESPONSE= deleteme.lnk
+
+$(RESPONSE) : 
+	.response $(LINJOBJ) $< > $@
+	.echo $(NEEDTGT)   >> $@
+	.echo $(LINKOPT) ; >> $@
+ 
+#ifdef BCC
+# Borland c++ v4.0
+MODEL= c
+CC = bcc -v -m$(MODEL)  
+SYSHEADER= mtconfig.mic
+OPTIMIZE= 
+COMPOPT= -c -H -j8 -N -d -w-pia -w-pro $(OPTIMIZE)
+MUST_ESCAPE_BACKSLASH=1
+GETLIB =
+OBJOPT = -o$*
+LINK = $(CC) -e$*
+LINKOPT =
+LINJOBJ =
+
+#else
+
+# MS Visual c++
+MODEL= C
+CC = cl
+SYSHEADER= mtconfig.mic
+OPTIMIZE= -Oeilt -Ob2
+COMPOPT= -c -A$(MODEL) $(OPTIMIZE) -FPa  -W3 -YX
+MUST_ESCAPE_BACKSLASH=0
+GETLIB = -Zl
+OBJOPT = -Fo$*
+LINK = link
+LINJOBJ = $(LIB)\SETARGV
+LINKOPT = /STACK:35000 /NOE /F /PACKC /EXEPACK
+
+#endif
+
+clean:
+	.del *${o}
+	.del colljp-.c
+	.del $(RESPONSE)
+	.del msvc.pch
+	
+veryclean:	clean
+	.del sortf*${x}
+	.del jptbl.h*

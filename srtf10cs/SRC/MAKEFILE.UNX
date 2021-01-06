@@ -1,0 +1,69 @@
+#sortf v00-10 makefile for unix gcc/cc
+
+CC = gcc
+OPTIMIZE= -O -finline-functions
+MUST_ESCAPE_BACKSLASH=0
+
+#CC = cc
+#OPTIMIZE= 
+#MUST_ESCAPE_BACKSLASH=1
+
+COMPOPT= -g -c $(OPTIMIZE)
+OBJOPT = -o $@
+LINKOPT = -g -o $@
+
+## switch to select signed/unsigned comparison
+# if memcmp() does signed comparison (eg. Sun OS 4.1.1 + JLE),
+# set UCOPT(unsigned comparison option) to 1
+#
+#UCOPT= 1
+#
+# else, let it be 0 : (eg. Ultrix)
+#
+UCOPT= 0
+#
+
+SOBJ = sortex.o mbjp.o
+JOBJ = colljp.o 
+HEADER = mtconfig.h mbjp.h colljp.h
+
+sortf: sortf.o $(SOBJ)  $(JOBJ)
+	$(CC) $(LINKOPT) sortf.o $(SOBJ)  $(JOBJ)
+ 
+sortfi: sortfi.o $(SOBJ)  $(JOBJ)
+	$(CC) $(LINKOPT) sortfi.o $(SOBJ)  $(JOBJ)
+ 
+sortfnoj: sortfnoj.o $(SOBJ) 
+	$(CC)  $(LINKOPT) sortfnoj.o $(SOBJ) 
+ 
+sortfdbg: sortf.o sortexdb.o  $(JOBJ)
+	$(CC) $(LINKOPT) sortf.o sortexdb.o  $(JOBJ)
+ 
+sortf.o: sortf.c $(HEADER)
+	$(CC) $(COMPOPT) -DFORCE_UC=$(UCOPT) $(OBJOPT) $<
+ 
+sortfi.o: sortf.c $(HEADER)
+	$(CC) $(COMPOPT) -DDO_DEBUG=1 -DFORCE_UC=$(UCOPT) $(OBJOPT) sortf.c
+ 
+sortfnoj.o: sortf.c $(HEADER)
+	$(CC) -DDO_MBCHR=0 $(COMPOPT) -DFORCE_UC=$(UCOPT) $(OBJOPT) sortf.c
+ 
+sortexdb.o: sortex.c 
+	$(CC) $(COMPOPT) -DDO_DEBUG=1 $(OBJOPT) sortex.c
+ 
+colljp.c: jptbl.h
+ 
+jptbl.h  : mkjptbl.pl 
+	jperl mkjptbl.pl -J$(MUST_ESCAPE_BACKSLASH)
+ 
+colltest: colljp.c 
+	$(CC) $(COMPOPT) -DDO_TEST=1 $(OBJOPT) colljp.c
+ 
+.c.o : 	$(HEADER)
+	$(CC) $(COMPOPT) $(OBJOPT) $<
+ 
+clean: 
+	rm -f sortf sortfi sortfnoj sortfdbg core *.o 
+	
+veryclean: clean
+	rm -f sortf sortfi sortfnoj sortfdbg jptbl.h

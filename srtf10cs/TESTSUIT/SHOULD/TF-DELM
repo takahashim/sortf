@@ -1,0 +1,8 @@
+c=b=a=d
+c:d:a:b
+d:a:b:c
+d=c=b=a
+a_b_c_d
+aXdXcXb
+bXaXdXc
+b_c_d_a

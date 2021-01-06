@@ -1,0 +1,99 @@
+#sortf v00-10 makefile for OS/2 gcc/IBM cpp
+x = .exe
+o = .obj
+
+ENV= -DOS2
+
+# 1. gcc in `emx' environment
+
+#CC = gcc -g
+#LINK = $(CC)
+#OPTIMIZE= -O -finline-functions
+#OBJOPT = -o $@
+#LINKOPT = -o $@
+#LINKOBJ = 
+#MUST_ESCAPE_BACKSLASH=1
+
+# 2. IBM C/C++ 2
+
+#
+# set this according to your environment  
+#
+IBMCPPLIB = E:\\IBMCPP\\LIB
+# 
+#
+CC = icc -Sn+ -Si+ -Gd+ -Gm+ -Gt- -N12
+LINK = $(CC)
+OPTIMIZE= -O+ -Oi30 -G4
+OBJOPT = -Fo$@
+LINKOPT = -Fe $@ /B /NOE 
+LINKOBJ = $(IBMCPPLIB)\\setargv.obj
+MUST_ESCAPE_BACKSLASH=0
+
+COMPOPT=  -c $(OPTIMIZE) $(ENV)
+
+## switch to select signed/unsigned comparison
+# if memcmp() does signed comparison (eg. Sun OS 4.1.1 + JLE),
+# set UCOPT(unsigned comparison option) to 1
+#
+#UCOPT= 1
+#
+# else, let it be 0 : (eg. Ultrix)
+#
+UCOPT= 0
+#
+
+SOBJ=  sortex$o 
+MOBJ = mbjp$o
+JOBJ = colljp$o 
+HEADER = mtconfig.h mbjp.h colljp.h
+
+sortf$x: sortf$o $(SOBJ) $(MOBJ) $(JOBJ)
+	$(LINK) $< $(SOBJ) $(MOBJ) $(JOBJ) $(LINKOBJ) $(LINKOPT)  
+ 
+sortfi$x: sortfi$o $(SOBJ) $(MOBJ) $(JOBJ)
+	$(LINK) $< $(SOBJ) $(MOBJ) $(JOBJ) $(LINKOBJ) $(LINKOPT)  
+ 
+sortfnoj$x: sortfnoj$o $(SOBJ) $(MOBJ)
+	$(LINK) $< $(SOBJ) $(MOBJ) $(LINKOBJ) $(LINKOPT)  
+ 
+sortfdbg$x: sortf$o sortexdb$o $(MOBJ) $(JOBJ) 
+	$(LINK) $< sortexdb$o $(MOBJ) $(JOBJ) $(LINKOBJ) $(LINKOPT)  
+ 
+sortf$o: sortf.c
+	$(CC) $(COMPOPT) -DFORCE_UC=$(UCOPT) $(OBJOPT) $<
+ 
+sortfi$o: sortf.c
+	$(CC) $(COMPOPT) -DDO_DEBUG=1 -DFORCE_UC=$(UCOPT) $(OBJOPT) $<
+ 
+sortfnoj$o: sortf.c
+	$(CC) -DDO_MBCHR=0 $(COMPOPT) -DFORCE_UC=$(UCOPT) $(OBJOPT) $<
+
+sortex$o: sortex.c
+	$(CC) $(COMPOPT)  $(OBJOPT) $<
+
+mbjp$o: mbjp.c
+	$(CC) $(COMPOPT)  $(OBJOPT) $<
+
+colljp$o: colljp.c
+	$(CC) $(COMPOPT)  $(OBJOPT) $<
+
+sortexdb$o: sortex.c
+	$(CC) $(COMPOPT) -DDO_DEBUG=1 $(OBJOPT) $<
+ 
+colljp.c: jptbl.h
+ 
+jptbl.h  : mkjptbl.pl 
+	jperl mkjptbl.pl -J$(KNOWS_BACKSLASH_ESCAPE)
+ 
+colltest: colljp.c 
+	$(CC) $(COMPOPT) -DDO_TEST=1 $(OBJOPT) colljp.c
+ 
+.c$o : 	$(HEADER)
+	$(CC) $(COMPOPT) $(OBJOPT) $<
+ 
+clean: 
+	rm -f sortf$x sortfi$x sortfnoj$x sortfdbg$x core *$o	
+
+veryclean: clean
+	rm -f sortf$x sortfi$x sortfnoj$x sortfdbg$x jptbl.h

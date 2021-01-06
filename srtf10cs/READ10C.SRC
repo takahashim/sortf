@@ -1,0 +1,33 @@
+本アーカイブには、フィールドを許す外部ソート sortf の v00-10c 版の
+ソースの全てが含まれています。
+MSDOS 版実行用ファイルは srtf10cm.lzh にあります。 
+
+src:
+     3253 Aug 27 1994 00:10 makefile.dos    dos 用 makefile
+     2169 Aug 27 1994 00:10 makefile.os2    OS/2 用
+     1580 Aug 27 1994 00:10 makefile.unx    UNIX用
+    85139 Aug 27 1994 00:10 sortf.c         メイン
+    55869 Aug 27 1994 00:10 sortex.c        外部ソート
+     2189 Aug 27 1994 00:10 sortex.h
+     4062 Aug 27 1994 00:10 mbjp.c          複数バイト
+      525 Aug 27 1994 00:10 mbjp.h
+    22836 Aug 27 1994 00:10 colljp.c        日本語照合
+     1029 Aug 27 1994 00:10 colljp.h
+    11820 Aug 27 1994 00:10 mkjptbl.pl      jptbl.h 作成用
+     5446 Aug 27 1994 00:10 mtconfig.h      UNIX/DOS/OS2/Mac用環境定義
+     3963 Aug 27 1994 00:10 mtconfig.x68    X68000用(pcs30367 Mad_Playerさん作)
+ 
+testsuit:
+    仕様テスト用のデータとスクリプト集。
+ 
+【権利関係】
+著作権保持、複製・転載等自由。無保障。
+ 
+【問い合せ】
+使用に関する御意見、バグの御報告などは、
+   PC-VAN SIG ORIENT (JORIENT) 3-3 (コスモス)
+へお寄せ下さい。
+ 
+mtoyo@Lit.hokudai.ac.jp (internet)
+CTD85062@pcvan.or.jp
+MHA00720@niftyserve.or.jp
